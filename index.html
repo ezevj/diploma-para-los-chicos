@@ -661,5 +661,115 @@
       html2pdf().set(opciones).from(elemento).save();
     }
   </script>
+  <!-- ================= ESCUDO PROTECTOR DE PROPIEDAD INTELECTUAL ================= -->
+<style>
+  /* 1. Bloquea selección de texto y arrastre de imágenes */
+  body.protected-mode {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
+
+  /* 2. Oculta los botones de descarga para visitantes externos */
+  body.protected-mode .toolbar-actions .btn-dl,
+  body.protected-mode .toolbar-actions .btn-download,
+  body.protected-mode .toolbar-actions .btn-print {
+    display: none !important;
+  }
+
+  /* 3. Oculta la Página 5 (Guía Docente y Solucionario) para visitantes */
+  body.protected-mode #kit-container .a4-page:nth-child(5) {
+    display: none !important;
+  }
+
+  /* 4. Marca de agua diagonal sobre cada hoja y sobre el diploma */
+  body.protected-mode .a4-page::after,
+  body.protected-mode #diploma-wrapper::after {
+    content: "VISTA PREVIA DE EVALUACIÓN — PROPIEDAD DE EZEQUIEL VELASQUEZ JEANDET (PROHIBIDO SU USO SIN EL TALLERISTA)";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    transform: translate(-50%, -50%) rotate(-32deg);
+    font-size: 16pt;
+    font-weight: 900;
+    color: rgba(185, 28, 28, 0.16);
+    border-top: 3px dashed rgba(185, 28, 28, 0.22);
+    border-bottom: 3px dashed rgba(185, 28, 28, 0.22);
+    padding: 14px 0;
+    text-align: center;
+    letter-spacing: 1.5px;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* 5. Si alguien intenta imprimir con Ctrl+P sin desbloquear, bloquea la hoja */
+  @media print {
+    body.protected-mode * {
+      display: none !important;
+    }
+    body.protected-mode::before {
+      display: block !important;
+      content: "DOCUMENTO PROTEGIDO — MATERIAL DE USO EXCLUSIVO PRESENCIAL DEL TALLERISTA EZEQUIEL VELASQUEZ JEANDET (LEY 11.723).";
+      font-size: 18pt;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 40mm;
+      color: #000000;
+    }
+  }
+
+  .btn-unlock {
+    background: #dc2626;
+    color: #ffffff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  // Activa la protección por defecto al abrir el link
+  document.body.classList.add('protected-mode');
+
+  // Bloquea clic derecho y atajos Ctrl+P / Ctrl+S / Ctrl+U cuando está protegido
+  document.addEventListener('contextmenu', function(e) {
+    if (document.body.classList.contains('protected-mode')) e.preventDefault();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (document.body.classList.contains('protected-mode')) {
+      if ((e.ctrlKey || e.metaKey) && ['p', 's', 'u', 'c'].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+        alert('🔒 Vista previa de evaluación. La impresión y descarga están reservadas para el tallerista a cargo (Ezequiel Velasquez Jeandet).');
+      }
+    }
+  });
+
+  // Agrega el botón de desbloqueo en la barra superior
+  window.addEventListener('DOMContentLoaded', function() {
+    const actionsBar = document.querySelector('.toolbar-actions');
+    if (actionsBar) {
+      const btnUnlock = document.createElement('button');
+      btnUnlock.className = 'btn-unlock';
+      btnUnlock.innerHTML = '🔐 Desbloquear (Solo Tallerista)';
+      btnUnlock.onclick = function() {
+        const clave = prompt('Ingresá tu clave de tallerista para quitar la marca de agua y habilitar la impresión:');
+        // CAMBIÁ "4734" POR LA CLAVE QUE VOS QUIERAS
+        if (clave === '4734') {
+          document.body.classList.remove('protected-mode');
+          btnUnlock.style.display = 'none';
+          alert('✅ Modo Tallerista activado: Marca de agua quitada y botones de descarga/impresión habilitados.');
+        } else if (clave !== null) {
+          alert('❌ Clave incorrecta.');
+        }
+      };
+      actionsBar.appendChild(btnUnlock);
+    }
+  });
+</script>
+<!-- ============================================================================ -->
 </body>
 </html>
