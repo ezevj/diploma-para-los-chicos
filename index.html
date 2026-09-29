@@ -4,18 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Diploma Oficial - Detectives del Cosmos (5.° Grado - Escuela N.° 48)</title>
-  <!-- Librería html2pdf para descarga directa en 1 clic -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
-      --navy-deep: #071120;
-      --navy-mid: #0f2547;
-      --blue-royal: #1e3a8a;
-      --gold-bright: #fbbf24;
-      --gold-rich: #d97706;
-      --gold-soft: #fef3c7;
-      --text-dark: #0f172a;
+      --navy-deep: #1e293b;
+      --navy-mid: #334e68;
+      --blue-royal: #3b5998;
+      --gold-bright: #e6c365;
+      --gold-rich: #b48327;
+      --text-dark: #1e293b;
       --text-muted: #475569;
+      color-scheme: light only;
     }
 
     * {
@@ -24,33 +23,35 @@
       padding: 0;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
+      forced-color-adjust: none !important;
     }
 
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
-      background-color: #1e293b;
+      background-color: #475569;
       color: var(--text-dark);
       padding: 74px 0 40px 0;
       display: flex;
       flex-direction: column;
       align-items: center;
+      filter: saturate(0.82) contrast(0.96);
     }
 
-    /* BARRA SUPERIOR DE HERRAMIENTAS (No sale en el PDF) */
+    /* BARRA SUPERIOR */
     .toolbar {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      height: 60px;
-      background: #071120;
+      height: 58px;
+      background: #1e293b;
       border-bottom: 3px solid var(--gold-bright);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 24px;
       z-index: 1000;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
       color: #ffffff;
     }
 
@@ -58,13 +59,13 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
     }
 
     .toolbar-badge {
       background: var(--gold-bright);
-      color: #071120;
+      color: #1e293b;
       font-size: 11px;
       padding: 3px 9px;
       border-radius: 4px;
@@ -79,55 +80,118 @@
 
     .btn {
       border: none;
-      padding: 8px 15px;
+      padding: 8px 14px;
       border-radius: 6px;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 12.5px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: transform 0.15s ease, opacity 0.15s ease;
     }
 
-    .btn:hover {
-      transform: translateY(-1px);
-      opacity: 0.93;
-    }
+    .btn-mode { background: #475569; color: #f8fafc; border: 1px solid #94a3b8; }
+    .btn-batch { background: #0d9488; color: #ffffff; }
+    .btn-download { background: #334e68; color: #ffffff; }
+    .btn-print { background: var(--gold-bright); color: #1e293b; }
+    .btn-unlock { background: #dc2626; color: #ffffff; font-weight: 800; }
 
-    .btn-mode {
-      background: #334155;
-      color: #f8fafc;
-      border: 1px solid #64748b;
-    }
-
-    .btn-download {
-      background: #0284c7;
+    /* PANEL GENERADOR DE LOS 18 DIPLOMAS (OCULTO EN MODO PROTEGIDO) */
+    #batch-panel {
+      width: 297mm;
+      background: #1e293b;
       color: #ffffff;
+      border: 2px solid var(--gold-bright);
+      border-radius: 10px;
+      padding: 16px 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      display: none;
     }
 
-    .btn-print {
-      background: var(--gold-bright);
-      color: #071120;
+    .batch-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #475569;
+      padding-bottom: 8px;
     }
 
-    /* HOJA A4 HORIZONTAL (297mm x 210mm) */
-    #diploma-wrapper {
+    .batch-header h3 {
+      color: var(--gold-bright);
+      font-size: 15px;
+    }
+
+    .batch-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    #student-names-input {
+      width: 100%;
+      height: 150px;
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1.5px solid #64748b;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 13px;
+      line-height: 1.45;
+      resize: vertical;
+    }
+
+    .batch-controls {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: #273549;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      color: #e2e8f0;
+    }
+
+    .batch-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    /* CONTENEDOR DE TODOS LOS DIPLOMAS */
+    #all-diplomas-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* HOJA A4 HORIZONTAL INDIVIDUAL */
+    .diploma-page {
       width: 297mm;
       height: 209mm;
       background: #ffffff;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
       padding: 8mm;
       position: relative;
       overflow: hidden;
+      page-break-after: always;
+      break-after: page;
     }
 
-    /* MARCO EXTERIOR ESPACIAL */
+    .diploma-page:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
     .diploma-frame {
       width: 100%;
       height: 100%;
-      background: radial-gradient(circle at 50% 0%, #fffbeb 0%, #ffffff 60%, #f0f9ff 100%);
-      border: 4px solid var(--navy-deep);
+      background: #fdfcf7;
+      border: 3.5px solid var(--navy-deep);
       border-radius: 10px;
       padding: 5mm;
       position: relative;
@@ -136,11 +200,10 @@
       justify-content: space-between;
     }
 
-    /* MARCO INTERIOR DORADO DOBLE */
     .diploma-inner {
       width: 100%;
       height: 100%;
-      border: 2.5px solid var(--gold-rich);
+      border: 2px solid var(--gold-rich);
       outline: 1px solid var(--gold-rich);
       outline-offset: -5px;
       border-radius: 6px;
@@ -151,12 +214,11 @@
       position: relative;
     }
 
-    /* ESQUINEROS DECORATIVOS */
     .corner {
       position: absolute;
       width: 22px;
       height: 22px;
-      border: 3.5px solid var(--navy-deep);
+      border: 3px solid var(--navy-deep);
       z-index: 2;
     }
     .corner-tl { top: 6px; left: 6px; border-right: none; border-bottom: none; }
@@ -164,16 +226,15 @@
     .corner-bl { bottom: 6px; left: 6px; border-right: none; border-top: none; }
     .corner-br { bottom: 6px; right: 6px; border-left: none; border-top: none; }
 
-    /* ENCABEZADO SUPERIOR DEL DIPLOMA */
     .top-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: linear-gradient(135deg, #071120 0%, #1e3a8a 60%, #0f2547 100%);
+      background: var(--navy-deep);
       color: #ffffff;
       padding: 10px 18px;
       border-radius: 8px;
-      border-bottom: 4px solid var(--gold-bright);
+      border-bottom: 3.5px solid var(--gold-bright);
     }
 
     .agency-logo {
@@ -184,7 +245,7 @@
 
     .agency-text-sup {
       font-size: 8pt;
-      letter-spacing: 1.8px;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
       color: var(--gold-bright);
       font-weight: 700;
@@ -193,14 +254,14 @@
     .agency-text-main {
       font-size: 13pt;
       font-weight: 900;
-      letter-spacing: 0.6px;
+      letter-spacing: 0.5px;
       color: #ffffff;
     }
 
     .school-badge {
       text-align: right;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(251, 191, 36, 0.5);
+      background: #273549;
+      border: 1px solid var(--gold-bright);
       padding: 5px 12px;
       border-radius: 6px;
       font-size: 8.5pt;
@@ -213,39 +274,37 @@
       display: block;
     }
 
-    /* TÍTULO CENTRAL DEL DIPLOMA */
     .title-block {
       text-align: center;
       margin-top: 2px;
     }
 
     .diploma-kicker {
-      font-size: 9.5pt;
+      font-size: 9pt;
       font-weight: 800;
       color: var(--gold-rich);
-      letter-spacing: 3px;
+      letter-spacing: 2.5px;
       text-transform: uppercase;
       margin-bottom: 2px;
     }
 
     .diploma-main-title {
       font-family: 'Georgia', 'Times New Roman', serif;
-      font-size: 27pt;
+      font-size: 26pt;
       font-weight: 900;
       color: var(--navy-deep);
-      letter-spacing: 1.5px;
+      letter-spacing: 1.2px;
       text-transform: uppercase;
       line-height: 1.05;
     }
 
-    /* SECCIÓN DE OTORGAMIENTO Y NOMBRE */
     .recipient-section {
       text-align: center;
       margin: 4px 0;
     }
 
     .grant-label {
-      font-size: 10.5pt;
+      font-size: 10.2pt;
       color: var(--text-muted);
       font-style: italic;
       margin-bottom: 4px;
@@ -254,12 +313,12 @@
     .recipient-line {
       width: 82%;
       margin: 0 auto;
-      border-bottom: 2.5px dashed var(--navy-mid);
+      border-bottom: 2px dashed var(--navy-mid);
       padding: 2px 12px 4px 12px;
-      font-size: 19pt;
+      font-size: 18.5pt;
       font-weight: 800;
-      color: var(--blue-royal);
-      min-height: 36px;
+      color: var(--navy-mid);
+      min-height: 34px;
       outline: none;
     }
 
@@ -271,21 +330,19 @@
       border: 2px solid var(--gold-rich);
       padding: 6px 24px;
       border-radius: 30px;
-      font-size: 12pt;
+      font-size: 11.5pt;
       font-weight: 900;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
       text-transform: uppercase;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
     }
 
-    /* MÉRITOS Y 4 INSIGNIAS DE CASOS RESUELTOS */
     .merits-container {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 14px;
-      background: #f8fafc;
-      border: 1.5px solid #cbd5e1;
+      background: #f1f5f9;
+      border: 1.5px solid #94a3b8;
       border-radius: 8px;
       padding: 8px 14px;
       margin: 4px 0;
@@ -300,8 +357,8 @@
 
     .case-badge {
       background: #ffffff;
-      border: 1px solid #cbd5e1;
-      border-top: 3px solid var(--blue-royal);
+      border: 1px solid #94a3b8;
+      border-top: 3px solid var(--navy-mid);
       border-radius: 6px;
       padding: 5px 6px;
       text-align: center;
@@ -312,7 +369,6 @@
       font-weight: 800;
       color: var(--gold-rich);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
     .case-badge-title {
@@ -327,7 +383,6 @@
       color: var(--text-muted);
     }
 
-    /* CAJA DEL CÓDIGO SECRETO DESCIFRADO: NUBE */
     .secret-code-panel {
       background: var(--navy-deep);
       color: #ffffff;
@@ -341,7 +396,7 @@
     .secret-code-label {
       font-size: 7.2pt;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
       color: var(--gold-bright);
       font-weight: 700;
       margin-bottom: 4px;
@@ -358,7 +413,7 @@
       width: 25px;
       height: 25px;
       background: var(--gold-bright);
-      color: #071120;
+      color: #1e293b;
       font-weight: 900;
       font-size: 11pt;
       border-radius: 4px;
@@ -372,7 +427,6 @@
       color: #e2e8f0;
     }
 
-    /* PIE DE FIRMAS Y SELLO DORADO */
     .signatures-footer {
       display: grid;
       grid-template-columns: 1fr auto 1fr auto 1fr;
@@ -382,28 +436,11 @@
       padding-top: 4px;
     }
 
-    .sig-block {
-      text-align: center;
-    }
+    .sig-block { text-align: center; }
+    .sig-line { border-bottom: 1.5px solid var(--navy-deep); height: 24px; margin-bottom: 4px; }
+    .sig-name { font-size: 9pt; font-weight: 800; color: var(--navy-deep); }
+    .sig-role { font-size: 7.5pt; color: var(--text-muted); }
 
-    .sig-line {
-      border-bottom: 1.5px solid var(--navy-deep);
-      height: 26px;
-      margin-bottom: 4px;
-    }
-
-    .sig-name {
-      font-size: 9pt;
-      font-weight: 800;
-      color: var(--navy-deep);
-    }
-
-    .sig-role {
-      font-size: 7.5pt;
-      color: var(--text-muted);
-    }
-
-    /* MEDALLA CENTRAL SVG */
     .medal-seal {
       display: flex;
       flex-direction: column;
@@ -417,49 +454,43 @@
       justify-content: space-between;
       font-size: 7.5pt;
       color: var(--text-muted);
-      border-top: 1px solid #e2e8f0;
+      border-top: 1px solid #cbd5e1;
       padding-top: 4px;
       margin-top: 2px;
     }
 
-    /* MODO FOTOCOPIA / AHORRO DE TINTA (Blanco y Negro de Alto Contraste) */
-    body.ink-saver #diploma-wrapper .diploma-frame {
-      background: #ffffff !important;
-    }
-    body.ink-saver .top-header {
-      background: #ffffff !important;
-      color: #000000 !important;
-      border: 2.5px solid #000000 !important;
-    }
-    body.ink-saver .agency-text-sup,
-    body.ink-saver .agency-text-main,
-    body.ink-saver .school-badge,
-    body.ink-saver .school-badge strong {
-      color: #000000 !important;
-      border-color: #000000 !important;
-    }
-    body.ink-saver .rank-banner {
-      background: #ffffff !important;
-      color: #000000 !important;
-      border: 2.5px solid #000000 !important;
-      box-shadow: none !important;
-    }
-    body.ink-saver .secret-code-panel {
-      background: #ffffff !important;
-      color: #000000 !important;
-      border: 2px solid #000000 !important;
-    }
-    body.ink-saver .secret-code-label,
-    body.ink-saver .secret-code-meaning {
-      color: #000000 !important;
-    }
-    body.ink-saver .tile {
-      background: #ffffff !important;
-      border: 2px solid #000000 !important;
-      color: #000000 !important;
+    body.ink-saver { filter: grayscale(100%); }
+
+    /* ================= MODO PROTEGIDO (BLOQUEO Y MARCA DE AGUA) ================= */
+    body.protected-mode {
+      user-select: none !important;
+      -webkit-user-select: none !important;
     }
 
-    /* CONFIGURACIÓN DE IMPRESIÓN A4 HORIZONTAL */
+    body.protected-mode .teacher-only-ctrl,
+    body.protected-mode #batch-panel {
+      display: none !important;
+    }
+
+    body.protected-mode .diploma-page::after {
+      content: "VISTA PREVIA DE EVALUACIÓN — PROPIEDAD DE EZEQUIEL VELASQUEZ JEANDET (PROHIBIDO SU USO SIN EL TALLERISTA)";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 120%;
+      transform: translate(-50%, -50%) rotate(-28deg);
+      font-size: 16pt;
+      font-weight: 900;
+      color: rgba(185, 28, 28, 0.17);
+      border-top: 3px dashed rgba(185, 28, 28, 0.22);
+      border-bottom: 3px dashed rgba(185, 28, 28, 0.22);
+      padding: 14px 0;
+      text-align: center;
+      letter-spacing: 1.5px;
+      pointer-events: none;
+      z-index: 999;
+    }
+
     @page {
       size: A4 landscape;
       margin: 0;
@@ -470,306 +501,327 @@
         background: #ffffff;
         padding: 0;
       }
-      .toolbar {
+      .toolbar,
+      #batch-panel {
         display: none !important;
       }
-      #diploma-wrapper {
+      #all-diplomas-container {
+        gap: 0;
+      }
+      .diploma-page {
         box-shadow: none;
         width: 297mm;
         height: 210mm;
+        margin: 0;
+      }
+      /* Bloquea impresión si no ingresó la clave */
+      body.protected-mode * {
+        display: none !important;
+      }
+      body.protected-mode::before {
+        display: block !important;
+        content: "DOCUMENTO PROTEGIDO — IMPRESIÓN RESERVADA AL TALLERISTA EZEQUIEL VELASQUEZ JEANDET (LEY 11.723).";
+        font-size: 18pt;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 45mm;
+        color: #000000;
       }
     }
   </style>
 </head>
-<body>
+<body class="protected-mode">
 
-  <!-- BARRA FLOTANTE SUPERIOR -->
+  <!-- BARRA SUPERIOR -->
   <div class="toolbar">
     <div class="toolbar-left">
-      <span class="toolbar-badge">Diploma A4 Horizontal</span>
-      <span>Podés hacer clic en la línea azul del diploma para escribir el nombre antes de bajar el PDF, o dejarlo en blanco.</span>
+      <span class="toolbar-badge">Diploma 5.° Grado</span>
+      <span id="status-label">Vista Previa Protegida (Desbloqueá para cargar la lista de los 18 chicos e imprimir)</span>
     </div>
     <div class="toolbar-actions">
-      <button class="btn btn-mode" onclick="alternarModoTinta()">
-        🖨️ Modo Fotocopia (Ahorro de Tinta)
+      <button class="btn btn-mode" onclick="document.body.classList.toggle('ink-saver')">
+        🖨️ Modo Fotocopia B/N
       </button>
-      <button class="btn btn-download" onclick="descargarDiplomaPDF()">
-        📥 Descargar PDF (1 Clic)
+      <button class="btn btn-batch teacher-only-ctrl" onclick="mostrarPanelLote()">
+        👥 Cargar Lista de Chicos (Lote)
       </button>
-      <button class="btn btn-print" onclick="window.print()">
-        ✨ Guardar como PDF (Calidad Vectorial)
+      <button class="btn btn-download teacher-only-ctrl" onclick="descargarDiplomasPDF()">
+        📥 Descargar PDF
+      </button>
+      <button class="btn btn-print teacher-only-ctrl" onclick="window.print()">
+        ✨ Imprimir / Guardar PDF
+      </button>
+      <button class="btn btn-unlock" id="btn-unlock" onclick="desbloquearModoTallerista()">
+        🔐 Desbloquear (Solo Tallerista)
       </button>
     </div>
   </div>
 
-  <!-- LIENZO DEL DIPLOMA A4 APAISADO -->
-  <div id="diploma-wrapper">
-    <div class="diploma-frame">
-      <div class="diploma-inner">
-
-        <!-- ESQUINEROS DECORATIVOS -->
-        <div class="corner corner-tl"></div>
-        <div class="corner corner-tr"></div>
-        <div class="corner corner-bl"></div>
-        <div class="corner corner-br"></div>
-
-        <!-- ENCABEZADO DE LA AGENCIA ESPACIAL Y ESCUELA N° 48 -->
-        <header class="top-header">
-          <div class="agency-logo">
-            <!-- Ícono SVG de Saturno y Estrellas -->
-            <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="32" cy="32" r="16" fill="#FBBF24" stroke="#FFFFFF" stroke-width="2"/>
-              <ellipse cx="32" cy="32" rx="29" ry="9" transform="rotate(-22 32 32)" stroke="#38BDF8" stroke-width="3.5" fill="none"/>
-              <circle cx="14" cy="14" r="2" fill="#FFFFFF"/>
-              <circle cx="52" cy="16" r="2.5" fill="#FBBF24"/>
-              <circle cx="48" cy="50" r="1.8" fill="#FFFFFF"/>
-            </svg>
-            <div>
-              <div class="agency-text-sup">Agencia Intergaláctica de Investigación Astronómica</div>
-              <div class="agency-text-main">MISIÓN ESPECIAL: DETECTIVES DEL COSMOS</div>
-            </div>
-          </div>
-
-          <div class="school-badge">
-            <strong>ESCUELA PRIMARIA N.° 48</strong>
-            San Carlos de Bariloche · Provincia de Río Negro<br />
-            División: <strong>5.° Grado</strong> · Ciclo Lectivo 2026
-          </div>
-        </header>
-
-        <!-- TÍTULO CENTRAL -->
-        <div class="title-block">
-          <div class="diploma-kicker">★ Certificación Honorífica de Exploración Espacial ★</div>
-          <h1 class="diploma-main-title">Diploma Oficial de la Agencia Espacial</h1>
+  <!-- PANEL PARA PEGAR LOS 18 NOMBRES (SOLO VISIBLE AL DESBLOQUEAR CON LA CLAVE) -->
+  <section id="batch-panel">
+    <div class="batch-header">
+      <h3>👥 Generador Automático de Diplomas por Lote (Ideal para los 18 chicos)</h3>
+      <span style="font-size: 12px; color: #cbd5e1;">Escribí o pegá 1 nombre por renglón</span>
+    </div>
+    <div class="batch-grid">
+      <textarea id="student-names-input" placeholder="Pegá acá la lista de los 18 chicos (uno abajo del otro), por ejemplo:&#10;Mateo González&#10;Valentina Pérez&#10;Santiago Rodríguez&#10;Sofía Martínez..."></textarea>
+      <div class="batch-controls">
+        <div>
+          <strong>¿Cómo funciona?</strong>
+          <p style="margin-top: 4px; line-height: 1.4;">
+            Al tocar <em>"Generar Diplomas"</em>, se crea automáticamente <strong>1 hoja A4 individual por cada alumno</strong> con su nombre ya puesto. Después tocás <strong>"✨ Imprimir / Guardar PDF"</strong> arriba y te salen los 18 diplomas listos de una sola vez.
+          </p>
         </div>
-
-        <!-- DESTINATARIO (EDITABLE EN PANTALLA O PARA COMPLETAR A MANO) -->
-        <div class="recipient-section">
-          <div class="grant-label">
-            Por su brillante curiosidad científica, trabajo en equipo y resolución de enigmas astronómicos, se otorga el presente diploma a:
-          </div>
-          <div class="recipient-line" contenteditable="true" spellcheck="false" title="Hacé clic para escribir el nombre del Detective o Patrulla (o dejalo vacío para completar a mano)">
-            &nbsp;
-          </div>
-          <div>
-            <span class="rank-banner">
-              ★ DETECTIVES OFICIALES DEL COSMOS — EXPERTOS DE 5.° GRADO ★
-            </span>
-          </div>
+        <div class="batch-btns">
+          <button class="btn btn-print" style="justify-content:center;" onclick="generarLoteDiplomas()">
+            ⚡ Generar un Diploma para cada Nombre de la Lista
+          </button>
+          <button class="btn btn-mode" style="justify-content:center;" onclick="restaurarDiplomaUnico()">
+            🔄 Volver a 1 solo Diploma en blanco (para llenar a mano)
+          </button>
         </div>
-
-        <!-- INSIGNIAS DE LOS 4 CASOS RESUELTOS + PALABRA SECRETA NUBE -->
-        <div class="merits-container">
-          <div class="badges-grid">
-            <div class="case-badge">
-              <div class="case-badge-num">✔ Caso 1 Superado</div>
-              <div class="case-badge-title">Órbita de Neptuno</div>
-              <div class="case-badge-sub">Gravedad y Ley Titius-Bode</div>
-            </div>
-            <div class="case-badge">
-              <div class="case-badge-num">✔ Caso 2 Superado</div>
-              <div class="case-badge-title">Juicio a Plutón</div>
-              <div class="case-badge-sub">Las 3 Reglas de la UAI (2006)</div>
-            </div>
-            <div class="case-badge">
-              <div class="case-badge-num">✔ Caso 3 Superado</div>
-              <div class="case-badge-title">El Cometa Viajero</div>
-              <div class="case-badge-sub">Hielo Cósmico y Viento Solar</div>
-            </div>
-            <div class="case-badge">
-              <div class="case-badge-num">✔ Caso 4 Superado</div>
-              <div class="case-badge-title">Anillos de Saturno</div>
-              <div class="case-badge-sub">Luna Crisálida y Dinosaurios</div>
-            </div>
-          </div>
-
-          <div class="secret-code-panel">
-            <div class="secret-code-label">🔓 Código Secreto Descifrado</div>
-            <div class="code-tiles">
-              <div class="tile">N</div>
-              <div class="tile">U</div>
-              <div class="tile">B</div>
-              <div class="tile">E</div>
-            </div>
-            <div class="secret-code-meaning">¡Las estrellas nacen en las Nebulosas!</div>
-          </div>
-        </div>
-
-        <!-- PIE DE FIRMAS Y MEDALLA OFICIAL -->
-        <div class="signatures-footer">
-          <div class="sig-block">
-            <div class="sig-line"></div>
-            <div class="sig-name">Firma de los Detectives</div>
-            <div class="sig-role">Agentes Oficiales de 5.° Grado</div>
-          </div>
-
-          <!-- SELLO / MEDALLA VECTORIAL -->
-          <div class="medal-seal">
-            <svg width="64" height="64" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <polygon points="50,3 61,15 77,11 81,27 95,35 90,50 95,65 81,73 77,89 61,85 50,97 39,85 23,89 19,73 5,65 10,50 5,35 19,27 23,11 39,15" fill="#FBBF24" stroke="#B45309" stroke-width="3"/>
-              <circle cx="50" cy="50" r="32" fill="#071120" stroke="#FDE68A" stroke-width="2"/>
-              <polygon points="50,26 56,41 72,41 59,51 64,66 50,57 36,66 41,51 28,41 44,41" fill="#FBBF24"/>
-            </svg>
-          </div>
-
-          <div class="sig-block">
-            <div class="sig-line"></div>
-            <div class="sig-name">Ezequiel Velasquez Jeandet</div>
-            <div class="sig-role">Tallerista de Astronomía · Comandante de Misión</div>
-          </div>
-
-          <!-- SEGUNDO SELLO / ESTRELLA -->
-          <div class="medal-seal">
-            <svg width="46" height="46" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="32" cy="32" r="28" fill="#EFF6FF" stroke="#1E3A8A" stroke-width="2.5" stroke-dasharray="4 2"/>
-              <path d="M32 12 L37 25 L51 25 L40 33 L44 47 L32 39 L20 47 L24 33 L13 25 L27 25 Z" fill="#1E3A8A"/>
-            </svg>
-          </div>
-
-          <div class="sig-block">
-            <div class="sig-line"></div>
-            <div class="sig-name">Firma / Sello Docente</div>
-            <div class="sig-role">Escuela Primaria N.° 48 · Bariloche</div>
-          </div>
-        </div>
-
-        <!-- DATOS DE REGISTRO INFERIOR -->
-        <div class="bottom-meta">
-          <span>CÓDIGO DE REGISTRO: EXP-COSMOS-5G · MISIÓN TITIUS-BODE &amp; NEBULOSAS</span>
-          <span contenteditable="true">San Carlos de Bariloche, Río Negro — Fecha: ____ / ____ / 2026</span>
-        </div>
-
       </div>
     </div>
+  </section>
+
+  <!-- CONTENEDOR DONDE SE GENERAN LOS DIPLOMAS (1 O LOS 18) -->
+  <div id="all-diplomas-container">
+
+    <!-- PLANTILLA BASE DEL DIPLOMA -->
+    <div class="diploma-page" id="diploma-template">
+      <div class="diploma-frame">
+        <div class="diploma-inner">
+
+          <div class="corner corner-tl"></div>
+          <div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div>
+          <div class="corner corner-br"></div>
+
+          <header class="top-header">
+            <div class="agency-logo">
+              <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="32" r="16" fill="#e6c365" stroke="#FFFFFF" stroke-width="2"/>
+                <ellipse cx="32" cy="32" rx="29" ry="9" transform="rotate(-22 32 32)" stroke="#93c5fd" stroke-width="3.5" fill="none"/>
+                <circle cx="14" cy="14" r="2" fill="#FFFFFF"/>
+                <circle cx="52" cy="16" r="2.5" fill="#e6c365"/>
+                <circle cx="48" cy="50" r="1.8" fill="#FFFFFF"/>
+              </svg>
+              <div>
+                <div class="agency-text-sup">Agencia Intergaláctica de Investigación Astronómica</div>
+                <div class="agency-text-main">MISIÓN ESPECIAL: DETECTIVES DEL COSMOS</div>
+              </div>
+            </div>
+
+            <div class="school-badge">
+              <strong>ESCUELA PRIMARIA N.° 48</strong>
+              San Carlos de Bariloche · Provincia de Río Negro<br />
+              División: <strong>5.° Grado</strong> · Ciclo Lectivo 2026
+            </div>
+          </header>
+
+          <div class="title-block">
+            <div class="diploma-kicker">★ Certificación Honorífica de Exploración Espacial ★</div>
+            <h1 class="diploma-main-title">Diploma Oficial de la Agencia Espacial</h1>
+          </div>
+
+          <div class="recipient-section">
+            <div class="grant-label">
+              Por su brillante curiosidad científica, trabajo en equipo y resolución de enigmas astronómicos, se otorga el presente diploma a:
+            </div>
+            <div class="recipient-line student-name-slot" contenteditable="true" spellcheck="false">
+              &nbsp;
+            </div>
+            <div>
+              <span class="rank-banner">
+                ★ DETECTIVES OFICIALES DEL COSMOS — EXPERTOS DE 5.° GRADO ★
+              </span>
+            </div>
+          </div>
+
+          <div class="merits-container">
+            <div class="badges-grid">
+              <div class="case-badge">
+                <div class="case-badge-num">✔ Caso 1 Superado</div>
+                <div class="case-badge-title">Órbita de Neptuno</div>
+                <div class="case-badge-sub">Gravedad y Ley Titius-Bode</div>
+              </div>
+              <div class="case-badge">
+                <div class="case-badge-num">✔ Caso 2 Superado</div>
+                <div class="case-badge-title">Juicio a Plutón</div>
+                <div class="case-badge-sub">Las 3 Reglas de la UAI (2006)</div>
+              </div>
+              <div class="case-badge">
+                <div class="case-badge-num">✔ Caso 3 Superado</div>
+                <div class="case-badge-title">El Cometa Viajero</div>
+                <div class="case-badge-sub">Hielo Cósmico y Viento Solar</div>
+              </div>
+              <div class="case-badge">
+                <div class="case-badge-num">✔ Caso 4 Superado</div>
+                <div class="case-badge-title">Anillos de Saturno</div>
+                <div class="case-badge-sub">Luna Crisálida y Dinosaurios</div>
+              </div>
+            </div>
+
+            <div class="secret-code-panel">
+              <div class="secret-code-label">🔓 Código Secreto Descifrado</div>
+              <div class="code-tiles">
+                <div class="tile">N</div>
+                <div class="tile">U</div>
+                <div class="tile">B</div>
+                <div class="tile">E</div>
+              </div>
+              <div class="secret-code-meaning">¡Las estrellas nacen en las Nebulosas!</div>
+            </div>
+          </div>
+
+          <div class="signatures-footer">
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="sig-name">Firma del Detective</div>
+              <div class="sig-role">Agente Oficial de 5.° Grado</div>
+            </div>
+
+            <div class="medal-seal">
+              <svg width="62" height="62" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="50,3 61,15 77,11 81,27 95,35 90,50 95,65 81,73 77,89 61,85 50,97 39,85 23,89 19,73 5,65 10,50 5,35 19,27 23,11 39,15" fill="#e6c365" stroke="#b48327" stroke-width="3"/>
+                <circle cx="50" cy="50" r="32" fill="#1e293b" stroke="#fde68a" stroke-width="2"/>
+                <polygon points="50,26 56,41 72,41 59,51 64,66 50,57 36,66 41,51 28,41 44,41" fill="#e6c365"/>
+              </svg>
+            </div>
+
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="sig-name">Ezequiel Velasquez Jeandet</div>
+              <div class="sig-role">Tallerista de Astronomía · Comandante de Misión</div>
+            </div>
+
+            <div class="medal-seal">
+              <svg width="44" height="44" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="32" r="28" fill="#f1f5f9" stroke="#334e68" stroke-width="2.5" stroke-dasharray="4 2"/>
+                <path d="M32 12 L37 25 L51 25 L40 33 L44 47 L32 39 L20 47 L24 33 L13 25 L27 25 Z" fill="#334e68"/>
+              </svg>
+            </div>
+
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="sig-name">Firma / Sello Docente</div>
+              <div class="sig-role">Escuela Primaria N.° 48 · Bariloche</div>
+            </div>
+          </div>
+
+          <div class="bottom-meta">
+            <span>CÓDIGO DE REGISTRO: EXP-COSMOS-5G · MISIÓN TITIUS-BODE &amp; NEBULOSAS</span>
+            <span contenteditable="true">San Carlos de Bariloche, Río Negro — Fecha: ____ / ____ / 2026</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- SCRIPTS PARA MODO FOTOCOPIA Y DESCARGA PDF -->
+  <!-- ================= LÓGICA DE SEGURIDAD SHA-256 Y GENERADOR DE LOTE ================= -->
   <script>
-    function alternarModoTinta() {
-      document.body.classList.toggle('ink-saver');
+    // La contraseña NO está guardada en el código: solo se guarda este Hash SHA-256 irreversible
+    // (correspondiente a tu clave actual de 4 dígitos + sal de seguridad).
+    const HASH_AUTORIZADO = "3e7f7a2c917d093622156202863e79f40176072f86e75077c7224d692c0a181f";
+
+    async function calcularHashConSal(texto) {
+      const msgBuffer = new TextEncoder().encode("CPE_RN_48_" + texto.trim());
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    function descargarDiplomaPDF() {
-      const elemento = document.getElementById('diploma-wrapper');
+    async function desbloquearModoTallerista() {
+      const clave = prompt('🔐 Ingresá tu clave secreta de Tallerista para desbloquear el Generador de los 18 Diplomas y la impresión:');
+      if (!clave) return;
+
+      const hashIngresado = await calcularHashConSal(clave);
+      if (hashIngresado === HASH_AUTORIZADO) {
+        document.body.classList.remove('protected-mode');
+        document.getElementById('btn-unlock').style.display = 'none';
+        document.getElementById('batch-panel').style.display = 'block';
+        document.getElementById('status-label').textContent = '✅ Modo Tallerista Activo: Cargá la lista de alumnos abajo o imprimí directo.';
+      } else {
+        alert('❌ Clave incorrecta.');
+      }
+    }
+
+    function mostrarPanelLote() {
+      const panel = document.getElementById('batch-panel');
+      panel.style.display = (panel.style.display === 'none') ? 'block' : 'none';
+    }
+
+    // Guarda una copia limpia del diploma original para clonar
+    const plantillaOriginalHTML = document.getElementById('diploma-template').outerHTML;
+
+    function generarLoteDiplomas() {
+      const texto = document.getElementById('student-names-input').value;
+      const nombres = texto
+        .split('\n')
+        .map(n => n.trim())
+        .filter(n => n.length > 0);
+
+      if (nombres.length === 0) {
+        alert('Pegá o escribí al menos un nombre en la caja de texto (uno por renglón).');
+        return;
+      }
+
+      const contenedor = document.getElementById('all-diplomas-container');
+      contenedor.innerHTML = '';
+
+      nombres.forEach((nombre, index) => {
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = plantillaOriginalHTML;
+        const nuevoDiploma = wrapper.firstElementChild;
+        nuevoDiploma.id = 'diploma-alumno-' + (index + 1);
+        const slotNombre = nuevoDiploma.querySelector('.student-name-slot');
+        slotNombre.textContent = nombre;
+        contenedor.appendChild(nuevoDiploma);
+      });
+
+      document.getElementById('status-label').textContent = `✅ ¡Listo! Se generaron ${nombres.length} diplomas individuales listos para imprimir.`;
+    }
+
+    function restaurarDiplomaUnico() {
+      const contenedor = document.getElementById('all-diplomas-container');
+      contenedor.innerHTML = plantillaOriginalHTML;
+      document.getElementById('status-label').textContent = '✅ Mostrando 1 diploma en blanco para completar a mano.';
+    }
+
+    function descargarDiplomasPDF() {
+      const elemento = document.getElementById('all-diplomas-container');
+      const cantidad = document.querySelectorAll('.diploma-page').length;
       const opciones = {
         margin: 0,
-        filename: 'Diploma_Detectives_del_Cosmos_5to_Grado_Escuela_48.pdf',
-        image: { type: 'jpeg', quality: 0.99 },
-        html2canvas: { scale: 2.5, useCORS: true, scrollY: 0 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        filename: `Diplomas_Detectives_del_Cosmos_5to_Grado_(${cantidad}_alumnos).pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+        pagebreak: { mode: ['css'] }
       };
       html2pdf().set(opciones).from(elemento).save();
     }
-  </script>
-  <!-- ================= ESCUDO PROTECTOR DE PROPIEDAD INTELECTUAL ================= -->
-<style>
-  /* 1. Bloquea selección de texto y arrastre de imágenes */
-  body.protected-mode {
-    user-select: none !important;
-    -webkit-user-select: none !important;
-  }
 
-  /* 2. Oculta los botones de descarga para visitantes externos */
-  body.protected-mode .toolbar-actions .btn-dl,
-  body.protected-mode .toolbar-actions .btn-download,
-  body.protected-mode .toolbar-actions .btn-print {
-    display: none !important;
-  }
+    // Bloquea clic derecho, F12, Ctrl+P, Ctrl+S y Ctrl+U mientras está en modo protegido
+    document.addEventListener('contextmenu', function(e) {
+      if (document.body.classList.contains('protected-mode')) e.preventDefault();
+    });
 
-  /* 3. Oculta la Página 5 (Guía Docente y Solucionario) para visitantes */
-  body.protected-mode #kit-container .a4-page:nth-child(5) {
-    display: none !important;
-  }
-
-  /* 4. Marca de agua diagonal sobre cada hoja y sobre el diploma */
-  body.protected-mode .a4-page::after,
-  body.protected-mode #diploma-wrapper::after {
-    content: "VISTA PREVIA DE EVALUACIÓN — PROPIEDAD DE EZEQUIEL VELASQUEZ JEANDET (PROHIBIDO SU USO SIN EL TALLERISTA)";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 120%;
-    transform: translate(-50%, -50%) rotate(-32deg);
-    font-size: 16pt;
-    font-weight: 900;
-    color: rgba(185, 28, 28, 0.16);
-    border-top: 3px dashed rgba(185, 28, 28, 0.22);
-    border-bottom: 3px dashed rgba(185, 28, 28, 0.22);
-    padding: 14px 0;
-    text-align: center;
-    letter-spacing: 1.5px;
-    pointer-events: none;
-    z-index: 999;
-  }
-
-  /* 5. Si alguien intenta imprimir con Ctrl+P sin desbloquear, bloquea la hoja */
-  @media print {
-    body.protected-mode * {
-      display: none !important;
-    }
-    body.protected-mode::before {
-      display: block !important;
-      content: "DOCUMENTO PROTEGIDO — MATERIAL DE USO EXCLUSIVO PRESENCIAL DEL TALLERISTA EZEQUIEL VELASQUEZ JEANDET (LEY 11.723).";
-      font-size: 18pt;
-      font-weight: bold;
-      text-align: center;
-      margin-top: 40mm;
-      color: #000000;
-    }
-  }
-
-  .btn-unlock {
-    background: #dc2626;
-    color: #ffffff;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-weight: 800;
-    font-size: 12.5px;
-    cursor: pointer;
-  }
-</style>
-
-<script>
-  // Activa la protección por defecto al abrir el link
-  document.body.classList.add('protected-mode');
-
-  // Bloquea clic derecho y atajos Ctrl+P / Ctrl+S / Ctrl+U cuando está protegido
-  document.addEventListener('contextmenu', function(e) {
-    if (document.body.classList.contains('protected-mode')) e.preventDefault();
-  });
-
-  document.addEventListener('keydown', function(e) {
-    if (document.body.classList.contains('protected-mode')) {
-      if ((e.ctrlKey || e.metaKey) && ['p', 's', 'u', 'c'].includes(e.key.toLowerCase())) {
-        e.preventDefault();
-        alert('🔒 Vista previa de evaluación. La impresión y descarga están reservadas para el tallerista a cargo (Ezequiel Velasquez Jeandet).');
-      }
-    }
-  });
-
-  // Agrega el botón de desbloqueo en la barra superior
-  window.addEventListener('DOMContentLoaded', function() {
-    const actionsBar = document.querySelector('.toolbar-actions');
-    if (actionsBar) {
-      const btnUnlock = document.createElement('button');
-      btnUnlock.className = 'btn-unlock';
-      btnUnlock.innerHTML = '🔐 Desbloquear (Solo Tallerista)';
-      btnUnlock.onclick = function() {
-        const clave = prompt('Ingresá tu clave de tallerista para quitar la marca de agua y habilitar la impresión:');
-        // CAMBIÁ "4734" POR LA CLAVE QUE VOS QUIERAS
-        if (clave === '4734') {
-          document.body.classList.remove('protected-mode');
-          btnUnlock.style.display = 'none';
-          alert('✅ Modo Tallerista activado: Marca de agua quitada y botones de descarga/impresión habilitados.');
-        } else if (clave !== null) {
-          alert('❌ Clave incorrecta.');
+    document.addEventListener('keydown', function(e) {
+      if (document.body.classList.contains('protected-mode')) {
+        const key = e.key.toLowerCase();
+        if (
+          e.key === 'F12' ||
+          ((e.ctrlKey || e.metaKey) && ['p', 's', 'u', 'c'].includes(key)) ||
+          ((e.ctrlKey || e.metaKey) && e.shiftKey && ['i', 'j', 'c'].includes(key))
+        ) {
+          e.preventDefault();
+          alert('🔒 Material protegido. Desbloqueá el Modo Tallerista para imprimir o gestionar lotes.');
         }
-      };
-      actionsBar.appendChild(btnUnlock);
-    }
-  });
-</script>
-<!-- ============================================================================ -->
+      }
+    });
+  </script>
 </body>
 </html>
