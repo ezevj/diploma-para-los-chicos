@@ -96,7 +96,7 @@
     .btn-print { background: var(--gold-bright); color: #1e293b; }
     .btn-unlock { background: #dc2626; color: #ffffff; font-weight: 800; }
 
-    /* PANEL GENERADOR DE LOS 18 DIPLOMAS (OCULTO EN MODO PROTEGIDO) */
+    /* PANEL GENERADOR DE LOS 18 DIPLOMAS */
     #batch-panel {
       width: 297mm;
       background: #1e293b;
@@ -162,7 +162,6 @@
       margin-top: 10px;
     }
 
-    /* CONTENEDOR DE TODOS LOS DIPLOMAS */
     #all-diplomas-container {
       display: flex;
       flex-direction: column;
@@ -461,7 +460,7 @@
 
     body.ink-saver { filter: grayscale(100%); }
 
-    /* ================= MODO PROTEGIDO (BLOQUEO Y MARCA DE AGUA) ================= */
+    /* ================= MODO PROTEGIDO ================= */
     body.protected-mode {
       user-select: none !important;
       -webkit-user-select: none !important;
@@ -514,7 +513,6 @@
         height: 210mm;
         margin: 0;
       }
-      /* Bloquea impresión si no ingresó la clave */
       body.protected-mode * {
         display: none !important;
       }
@@ -536,11 +534,11 @@
   <div class="toolbar">
     <div class="toolbar-left">
       <span class="toolbar-badge">Diploma 5.° Grado</span>
-      <span id="status-label">Vista Previa Protegida (Desbloqueá para cargar la lista de los 18 chicos e imprimir)</span>
+      <span id="status-label">Vista Previa Protegida (Desbloqueá para cargar los 18 nombres e imprimir)</span>
     </div>
     <div class="toolbar-actions">
       <button class="btn btn-mode" onclick="document.body.classList.toggle('ink-saver')">
-        🖨️ Modo Fotocopia B/N
+        🖨️️ Modo Fotocopia B/N
       </button>
       <button class="btn btn-batch teacher-only-ctrl" onclick="mostrarPanelLote()">
         👥 Cargar Lista de Chicos (Lote)
@@ -557,7 +555,7 @@
     </div>
   </div>
 
-  <!-- PANEL PARA PEGAR LOS 18 NOMBRES (SOLO VISIBLE AL DESBLOQUEAR CON LA CLAVE) -->
+  <!-- PANEL PARA PEGAR LOS 18 NOMBRES (SOLO VISIBLE AL DESBLOQUEAR) -->
   <section id="batch-panel">
     <div class="batch-header">
       <h3>👥 Generador Automático de Diplomas por Lote (Ideal para los 18 chicos)</h3>
@@ -569,7 +567,7 @@
         <div>
           <strong>¿Cómo funciona?</strong>
           <p style="margin-top: 4px; line-height: 1.4;">
-            Al tocar <em>"Generar Diplomas"</em>, se crea automáticamente <strong>1 hoja A4 individual por cada alumno</strong> con su nombre ya puesto. Después tocás <strong>"✨ Imprimir / Guardar PDF"</strong> arriba y te salen los 18 diplomas listos de una sola vez.
+            Al tocar <em>"Generar Diplomas"</em>, se crea automáticamente <strong>1 hoja A4 individual por cada alumno</strong> con su nombre ya puesto. Después tocás <strong>"✨ Imprimir / Guardar PDF"</strong> arriba y te salen los diplomas listos de una sola vez.
           </p>
         </div>
         <div class="batch-btns">
@@ -584,10 +582,9 @@
     </div>
   </section>
 
-  <!-- CONTENEDOR DONDE SE GENERAN LOS DIPLOMAS (1 O LOS 18) -->
+  <!-- CONTENEDOR DONDE SE GENERAN LOS DIPLOMAS -->
   <div id="all-diplomas-container">
 
-    <!-- PLANTILLA BASE DEL DIPLOMA -->
     <div class="diploma-page" id="diploma-template">
       <div class="diploma-frame">
         <div class="diploma-inner">
@@ -720,39 +717,27 @@
 
   </div>
 
-  <!-- ================= LÓGICA DE SEGURIDAD SHA-256 Y GENERADOR DE LOTE ================= -->
   <script>
-    // La contraseña NO está guardada en el código: solo se guarda este Hash SHA-256 irreversible
-    // (correspondiente a tu clave actual de 4 dígitos + sal de seguridad).
-    const HASH_AUTORIZADO = "3e7f7a2c917d093622156202863e79f40176072f86e75077c7224d692c0a181f";
-
-    async function calcularHashConSal(texto) {
-      const msgBuffer = new TextEncoder().encode("CPE_RN_48_" + texto.trim());
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
- function desbloquearModoTallerista() {
+    function desbloquearModoTallerista() {
       const clave = prompt('🔐 Ingresá tu clave de Tallerista:');
       if (!clave) return;
 
-      // MÉTODO INFALIBLE: 4734 * 3 = 14202 (Oculta la clave real del F12)
+      // VALIDACIÓN MATEMÁTICA: 4734 * 3 = 14202
       if (parseInt(clave.trim()) * 3 === 14202) {
         document.body.classList.remove('protected-mode');
         document.getElementById('btn-unlock').style.display = 'none';
         document.getElementById('batch-panel').style.display = 'block';
-        document.getElementById('status-label').textContent = '✅ Modo Tallerista Activo: Cargá la lista de los 18 chicos abajo o imprimí directo.';
+        document.getElementById('status-label').textContent = '✅ Modo Tallerista Activo: Cargá la lista de alumnos abajo o imprimí directo.';
       } else {
         alert('❌ Clave incorrecta.');
       }
     }
+
     function mostrarPanelLote() {
       const panel = document.getElementById('batch-panel');
       panel.style.display = (panel.style.display === 'none') ? 'block' : 'none';
     }
 
-    // Guarda una copia limpia del diploma original para clonar
     const plantillaOriginalHTML = document.getElementById('diploma-template').outerHTML;
 
     function generarLoteDiplomas() {
@@ -803,7 +788,6 @@
       html2pdf().set(opciones).from(elemento).save();
     }
 
-    // Bloquea clic derecho, F12, Ctrl+P, Ctrl+S y Ctrl+U mientras está en modo protegido
     document.addEventListener('contextmenu', function(e) {
       if (document.body.classList.contains('protected-mode')) e.preventDefault();
     });
